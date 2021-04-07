@@ -65,4 +65,29 @@ class Resolver
     {
         return isset(self::$template[$key]) ? self::$template[$key] : str_replace(['{','}'], '/', $key);
     }
+
+    public static function call($mixPath, $params, $defaultControllerPath = '')
+    {
+        $path = doubleDotExploder($mixPath);
+
+        switch ($path[0]) {
+            case 'Include':
+                if (file_exists($path[1])) include $path[1]; exit;
+                break;
+            
+            case 'Class':
+                $parse = classParser($path[1]);
+                if (!empty($defaultControllerPath) && file_exists($defaultControllerPath.$parse[0].'.class.php'))
+                {
+                    // include class
+                    include $defaultControllerPath.$parse[0].'.class.php';
+                    // call back
+                    if (class_exists($parse[0])) call_user_func_array([(new $parse[0]()), $parse[1]], [$params]); exit;
+                }
+                break;
+            default:
+                echo $mixPath; exit;
+                break;
+        }
+    }
 }

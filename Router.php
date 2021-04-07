@@ -12,8 +12,7 @@
  */
 
 //  Load helper and resolver
-require __DIR__.'/helper.php';
-require __DIR__.'/Resolver.php';
+requireFile('Resolver.php');
 
 class Rachrouter 
 {
@@ -23,6 +22,7 @@ class Rachrouter
     private $expCriteria = [];
     private $expRequest = [];
     private $params;
+    private $defaultControllerPath = 'Controller';
 
     // make a construct
     public function __construct()
@@ -139,10 +139,14 @@ class Rachrouter
         $this->expRequest = slashExploder($this->removeNonRoute($_SERVER['REQUEST_URI']));
 
         $match = 0;
+        
         foreach ($this->expRequest as $pos => $path) {
-            if ($this->resolver($this->expCriteria[$pos], $this->expRequest[$pos]))
+            if (isset($this->expCriteria[$pos]) && isset($this->expRequest[$pos]))
             {
-                $match++;
+                if ($this->resolver($this->expCriteria[$pos], $this->expRequest[$pos]))
+                {
+                    $match++;
+                }
             }
         }
         return ($match === count($this->expCriteria)) ? true : false;
@@ -167,8 +171,7 @@ class Rachrouter
                     // set params
                     $this->params = $this->expRequest;
                     // callback function, view, file etc. :)
-                    echo $callback;
-                    exit;
+                    Resolver::call($callback, $this->params, $this->defaultControllerPath);
                 }
             }
 
@@ -198,5 +201,10 @@ class Rachrouter
         }
 
         return $this->params;
+    }
+
+    public function setDefaultControllerPath($path)
+    {
+        $this->defaultControllerPath = $path;
     }
 }

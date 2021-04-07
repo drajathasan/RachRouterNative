@@ -22,3 +22,27 @@ function slashExploder($mix)
 {
     return explode('/', trim($mix, '/'));
 }
+
+function doubleDotExploder($mix)
+{
+    return explode('::', trim($mix));
+}
+
+function classParser($mixString)
+{
+    $exp = explode('@', trim($mixString));
+
+    return $exp;
+}
+
+function requireFile($filePath, $withDS = true)
+{
+    if ($withDS)
+    {
+        require __DIR__.DS.$filePath;
+    }
+    else
+    {
+        require $filePath;
+    }
+}
